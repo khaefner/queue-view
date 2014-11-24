@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Queue View</title>
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://code.jquery.com/ui/1.11.1/jquery-ui.min.js"></script>
+<script src="http://layout.jquery-dev.com/lib/js/jquery.layout-latest.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+<link rel="stylesheet" href="http://code.jquery.com/ui/1.11.1/themes/smoothness/jquery-ui.css">
+<style>
+  label { display: block; }
+  select { width: 200px; }
+
+  .callBox {
+	padding:1px;
+	overflow:hidden;
+	background: linear-gradient(#e9e9e9, #d3d3d3);
+	box-shadow: rgba(0, 0, 0, .5) 2px 2px 5px;
+	margin-top:10px;
+	height:60px;
+	border-style:solid;
+	border-width:2px;
+	border-color:white;
+  }
+  .agentBox {
+	padding:1px;
+	overflow:hidden;
+	background: linear-gradient(#e9e9e9, #d3d3d3);
+	box-shadow: rgba(0, 0, 0, .5) 2px 2px 5px;
+	margin-top:10px;
+	height:75px;
+	border-style:solid;
+	border-width:2px;
+	border-color:white;
+  }
+  .statusBox {
+	padding:1px;
+	background: linear-gradient(#e9e9e9, #d3d3d3);
+	box-shadow: rgba(0, 0, 0, .5) 2px 2px 5px;
+	margin-top:10px;
+	height:75px;
+	border-style:solid;
+	border-width:2px;
+	border-color:white;
+  }
+  .statusHeader{
+	background: #444444;
+	text-align:center;
+	color:white;
+	width:100%;
+  }
+  .statusInfo {
+	float:left;
+	height:100%;
+	background: #e6e6e6;
+	background-repeat: no-repeat;
+	border-style:solid;
+	border-width:0px 2px 0px 0px;
+	border-color:white;
+	position:relative;
+	text-align:center;
+	min-width:55px;
+
+  }
+  .statusLabel{
+       float:left;
+	height:100%;
+	width:20px;
+	font-size:0.8em;
+	background: #444444;
+	color:white;
+	text-align:center;
+	border-style:solid;
+	border-width:0px 2px 0px 0px;
+	border-color:white;
+  }
+  .agentAvatar {
+	float:left;
+	width:100px;
+	height:100%;
+	background: #e6e6e6 url('/images/agent.png');
+	background-size: 50px 50px;
+	background-position: center bottom;
+	text-align:right;
+	background-repeat: no-repeat;
+	border-style:solid;
+	border-width:0px 2px 0px 0px;
+	border-color:white;
+	position:relative;
+  }
+  .bridgedInfo {
+	float:left;
+	height:100%;
+	background: #e6e6e6;
+	background-repeat: no-repeat;
+	border-style:solid;
+	border-width:0px 2px 0px 0px;
+	border-color:white;
+	position:relative;
+	min-width:50px;
+	text-align:center;
+
+  }
+  .bridgedID{
+	float:left;
+	width:50%;
+  }
+  .bridgederName{
+	font-size:1.3em;
+	color:#151515;
+  }
+  .bridgederNumber{
+	font-size:1.2em;
+	color:#2A2A2A;
+  }
+  .bridgedTimer {
+	float:left;
+	position:relative;
+	color:#444444;
+	font-size:1.3em;
+	text-align:center;
+	width:50%;
+   }
+  .bridgedStatus {
+	height:100%;
+	background: #e6e6e6;
+	position:relative;
+	overflow:hidden;
+  }
+  .bridgedIcon {
+	float:left;
+	width:40px;
+	height:100%;
+	background: #e6e6e6 url('/images/phone.png');
+	background-size: 40px 40px;
+	background-position: center center;
+	text-align:right;
+	background-repeat: no-repeat;
+	border-style:solid;
+	border-width:0px 2px 0px 0px;
+	border-color:white;
+  }
+  .bridgedInfoHeader{
+	background: #444444;
+	text-align:center;
+	color:white;
+	width:100%;
+  }
+
+  .callTransfer { border: 2px dotted gray; } 
+  .callInfo {
+	float:left;
+	height:100%;
+	background: #e6e6e6;
+	background-repeat: no-repeat;
+	border-style:solid;
+	border-width:0px 2px 0px 0px;
+	border-color:white;
+	position:relative;
+	min-width:200px;
+	text-align:center;
+
+  }
+  .callerName{
+	color:#151515;
+  }
+  .callerNumber{
+	color:#2A2A2A;
+  }
+  .callTimer {
+	position:relative;
+	color:#444444;
+	font-size:1.5em;
+	text-align:center;
+   }
+  .callStatus {
+	height:100%;
+	background: #e6e6e6;
+	position:relative;
+	overflow:hidden;
+  }
+  .callIcon {
+	float:left;
+	width:40px;
+	height:100%;
+	background: #e6e6e6 url('/images/phone.png');
+	background-size: 40px 40px;
+	background-position: center center;
+	text-align:right;
+	background-repeat: no-repeat;
+	border-style:solid;
+	border-width:0px 2px 0px 0px;
+	border-color:white;
+  }
+  .callInfoHeader{
+	background: #444444;
+	text-align:center;
+	color:white;
+	width:100%;
+  }
+  .agentInfo {
+	float:left;
+	height:100%;
+	background: #e6e6e6;
+	background-size: 40px 40px;
+	background-repeat: no-repeat;
+	border-style:solid;
+	border-width:0px 2px 0px 0px;
+	border-color:white;
+	position:relative;
+	min-width:50px;
+	text-align:center;
+
+  }
+  .agentStatusInfo {
+	height:100%;
+	background: #e6e6e6;
+	background-size: 40px 40px;
+	background-repeat: no-repeat;
+	position:relative;
+	min-width:50px;
+	text-align:center;
+	overflow:hidden;
+  }
+
+  .agentInfoHeader{
+	background: #444444;
+	text-align:center;
+	color:white;
+	width:100%;
+  }
+
+  .agentStatus{
+       background:green;
+	position:absolute; top:0;
+	height:100%;
+	width:20px;
+  }
+  .agentStateIcon{
+       background: url('/images/phone_ready.png');
+	background-size: 20px 40px;
+	background-position: center bottom;
+	background-repeat: no-repeat;
+	position:absolute; top:0;
+	height:100%;
+	width:25px;
+  }
+
+  .columnHeader{
+	background: linear-gradient(#e9e9e9, #d3d3d3);
+	padding:5px;
+	border-style:solid;
+	border-width:2px;
+	border-color:#696969;
+  }
+  
+  </style>
+<script type="text/javascript">
+//Globals
+var Agents = new Array();
+var Members = new Array();
+var Queues = new Array();
+function removeAgentString(name){
+	return name.replace("agent-",""); 
+};
+function pad(n, width, z) {
+  z = z || '0';
+  n = n + '';
+  return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
+}
+
+function diffArray(a, b) {
+  var seen = [], diff = [];
+  for ( var i = 0; i < b.length; i++)
+      seen[b[i]] = true;
+  for ( var i = 0; i < a.length; i++)
+      if (!seen[a[i]])
+          diff.push(a[i]);
+  return diff;
+}
+
+$(document).ready(function () {
+		$('body').layout({ 
+			applyDemoStyles: true,
+			north__size:.1,
+			east__size:.4,
+			west__size:.2,
+			west__minSize:.15,
+			west__maxSize:.25,
+			east__minSize:.3,
+			east__maxSize:.4,
+			center__size:.5,
+		});
+	$( "#queueSelect" ).selectmenu({
+		change: function( event, ui ) {
+			$("#agentContainer").html("");
+			agentUpdate();
+			handleMemberUpdate();
+		}
+	});
+setInterval(function() {
+	$(function(){
+	 $(".callBox").each(function(){
+		for(var m=0;m<Members.length;m++){
+			if(Members[m].uuid == $(this).attr('id').replace("callBox_","")){
+				var uuid= Members[m].uuid;
+				var seconds;
+				var minutes;
+				var hours;
+				var startDate = new Date(parseInt(Members[m].call_start));
+				var rightNow = new Date();
+				seconds=pad(Math.ceil((rightNow-startDate/1000)/1000)%60,2);
+				minutes=pad(Math.floor(((rightNow-startDate/1000)/1000)/60),2);
+				hours=pad(Math.floor(((rightNow-startDate/1000)/1000)/360),2);
+				var timeContainer=$("#callTimer_"+uuid);
+				timeContainer.html(hours+":"+minutes+":"+seconds);
+			}
+		}
+	    });
+         $(".bridgedTimer").each(function(){
+                for(var m=0;m<Members.length;m++){
+                        if(Members[m].uuid == $(this).attr('id').replace("bridgedTimer_","")){
+                                var uuid= Members[m].uuid;
+                                var seconds;
+                                var minutes;
+                                var hours;
+                                var startDate = new Date(parseInt(Members[m].call_join)*1000);
+                                var rightNow = new Date();
+                                seconds=pad(Math.ceil((rightNow-startDate)/1000)%60,2);
+                                minutes=pad(Math.floor(((rightNow-startDate)/1000)/60),2);
+                                hours=pad(Math.floor(((rightNow-startDate)/1000)/360),2);
+                                var timeContainer=$("#bridgedTimer_"+uuid);
+                                timeContainer.html(hours+":"+minutes+":"+seconds);
+		
+                        }
+                }
+            });
+	});
+}, 1000);
+});
+
+function handleMemberUpdate(){
+	var displayedArray = [];
+	var pushedArray = [];
+	var diff = [];
+
+	 $("#callContainer").children().each(function(){
+		displayedArray.push($(this).attr('id').replace("callBox_",""));
+	 });
+
+	for(var m=0;m<Members.length;m++){
+		pushedArray.push(Members[m].uuid);	
+	}
+
+	diff = diffArray(displayedArray,pushedArray);
+	for(var d=0;d<diff.length;d++){
+		var callBox = $("#callBox_"+diff[d]);
+		callBox.hide( "drop", { direction: "right" }, "slow" ,
+			function () {callBox.remove()}
+		);
+	}	
+	
+	//Member Join/eave Update	
+	for(var m=0;m<Members.length;m++){
+		if(Members[m].state == "Bridged"){
+			var callBox=$("#callBox_"+Members[m].uuid);
+			var agentState=$("#agentState_"+Members[m].agent);
+			callBox.effect("transfer",{ to: agentState, className:"callTransfer" }, 500,
+				function () {callBox.hide( "drop", { direction: "left" }, "slow"
+				 )}
+			);
+			var htmlOut="";
+			htmlOut+="<div class='bridgedStatus' id='bridgedStatus_"+Members[m].uuid+"'>";
+			htmlOut+="<div class='bridgedID'><div class='bridgedName'>"+Members[m].name+"</div><div class='bridgedNumber'>"+Members[m].number+"</div></div>";
+			htmlOut+="<div class='bridgedTimer' id='bridgedTimer_"+Members[m].uuid+"'>00:00:00</div>";
+			htmlOut+="</div>";
+			agentState.html(htmlOut);
+		}
+		if(Members[m].state == "Inactive"){
+			var callBox=$("#callBox_"+Members[m].uuid);
+			var agentState=$("#agentState_"+Members[m].agent);
+			callBox.remove();
+		}
+		if(Members[m].state == "Active"){
+			if(!$("#callBox_"+Members[m].uuid).length){//only add new calls
+				var htmlOut="";
+				var selectedQueue = $( "#queueSelect option:selected" ).text();
+					if(Members[m].queue == selectedQueue){ //will need something about joined here
+						htmlOut+="<div class='callBox' style='display:none' id='callBox_"+Members[m].uuid+"'>";
+							htmlOut+="<div class='callIcon'></div>";
+							htmlOut+="<div class='callInfo' id='callerID_"+Members[m].uuid+"'><div class='callInfoHeader'>Caller</div>";
+							htmlOut+="<div class='callerName'>"+Members[m].name+"</div><div class='callerNumber'>"+Members[m].number+"</div></div>";
+							htmlOut+="<div class='callStatus' ><div class='callInfoHeader'>Time In Queue</div><div class='callTimer' id='callTimer_"+Members[m].uuid+"'>00:00:00</div></div>";
+						htmlOut+="</div>";
+					}
+				$("#callContainer").append(htmlOut);
+				var callBox=$("#callBox_"+Members[m].uuid);
+				callBox.show( "drop", { direction: "up" }, "slow" );
+			}
+		}
+	}
+
+}
+
+function handleAgentState(){
+	var agents=Agents;
+	for(var a=0;a<agents.length;a++){
+		var state = agents[a].state+"";
+		var status=agents[a].status+"";
+		var agentStateID = $("#agentState_"+agents[a].name);
+		var agentStatusID = $("#agentStatus_"+agents[a].name);
+		if(status =="Available"){
+			if(state == "In a queue call"){
+				agentStatusID.css("background-color", "red");
+			}
+			if(state == "Waiting"){
+				agentStateID.html(state);
+				agentStatusID.css("background-color", "green");
+			}
+			if(state == "Receiving"){
+				agentStateID.html(state);
+				agentStatusID.css("background-color", "yellow");
+			}
+		}else if(status =="On Break"){
+				agentStateID.html("---");
+		}
+	}
+}
+
+function handleAgentStatus(){
+	var agents=Agents;
+	for(var a=0;a<agents.length;a++){
+		var status=agents[a].status+"";
+		var agentStatusID = $("#agentStatus_"+agents[a].name);
+		var agentBoxID = $("#agentBox_"+agents[a].name);
+		if(status == "On Break"){
+			if(agentBoxID.is(":hidden")){
+				agentBoxID.show( "drop", { direction: "left" }, "slow" );
+			}
+			agentStatusID.css("background-color", "orange");
+			//agentStatusID.effect( "highlight", {color:"#669966"}, 1000 );
+		}
+		if(status == "Available"){
+			if(agentBoxID.is(":hidden")){
+				agentBoxID.show( "drop", { direction: "left" }, "slow" );
+			}
+			agentStatusID.css("background-color", "green");
+			//agentStatusID.effect( "highlight", {color:"#669966"}, 1000 );
+		}
+		if(status == "Logged Out"){
+			agentBoxID.hide( "drop", { direction: "right" }, "slow" );
+		}
+	}
+
+}
+
+
+function displayMembers(){
+	$("#callContainer").html("");
+	var members=Members;
+	var htmlOut="";
+	var selectedQueue = $( "#queueSelect option:selected" ).text();
+	for (var m=0;m<members.length;m++){
+		if(members[m].queue == selectedQueue){ //will need something about joined here
+			htmlOut+="<div class='callBox' id='callBox_"+members[m].uuid+"'>";
+				htmlOut+="<div class='callIcon'></div>";
+				htmlOut+="<div class='callInfo' id='callerID_"+members[m].uuid+"'><div class='callInfoHeader'>Caller</div>";
+				htmlOut+="<div class='callerName'>"+members[m].name+"</div><div class='callerNumber'>"+members[m].number+"</div></div>";
+				htmlOut+="<div class='callStatus' ><div class='callInfoHeader'>Time In Queue</div><div class='callTimer' id='callTimer_"+members[m].uuid+"'>00:00:00</div></div>";
+			htmlOut+="</div>";
+		}
+	}
+	$("#callContainer").append(htmlOut);
+}
+
+function agentUpdate(){
+	var htmlOut="";
+	var selectedQueue = $( "#queueSelect option:selected" ).text();
+	for(var a=0;a<Agents.length;a++){
+		if(Agents[a].queue == selectedQueue){
+				if(!$("#agentBox_"+Agents[a].name).length){
+					htmlOut+= "<div class='agentBox' id='agentBox_"+Agents[a].name+"'>";
+						htmlOut+= "<div class='agentAvatar'>"
+						+"<div class='agentStatus' id='agentStatus_"+Agents[a].name+"'></div><div class='agentInfoHeader'>"+removeAgentString(Agents[a].name)+"</div></div>"
+						+"<div class='agentInfo'><div class='agentInfoHeader'>Calls</div>"+Agents[a].calls_answered+"</div>"
+						+"<div class='agentInfo'><div class='agentInfoHeader'>Missed</div>"+Agents[a].no_answer_count+"</div>"
+						+"<div class='agentInfo'><div class='agentInfoHeader'>CPT</div>"+Agents[a].talk_time+"</div>";
+						htmlOut+="<div class='agentStatusInfo'>"
+							+"<div class='agentInfoHeader'>Call State</div>"
+							+"<div id='agentState_"+Agents[a].name+"'>"+Agents[a].state+"</div></div>";
+					htmlOut+= "</div>";
+				}
+		}
+	}
+	$("#agentContainer").append(htmlOut);
+	for(var a=0;a<Agents.length;a++){
+		var status=Agents[a].status+"";
+		var agentStatusID = $("#agentStatus_"+Agents[a].name);
+		var agentBoxID = $("#agentBox_"+Agents[a].name);
+		if(status == "On Break"){
+			if(agentBoxID.is(":hidden")){
+				agentBoxID.show( "drop", { direction: "left" }, "slow" );
+			}
+			agentStatusID.css("background-color", "orange");
+			//agentStatusID.effect( "highlight", {color:"#669966"}, 1000 );
+		}
+		if(status == "Available"){
+			if(agentBoxID.is(":hidden")){
+				agentBoxID.show( "drop", { direction: "left" }, "slow" );
+			}
+			agentStatusID.css("background-color", "green");
+			//agentStatusID.effect( "highlight", {color:"#669966"}, 1000 );
+		}
+		if(status == "Logged Out"){
+			agentBoxID.hide( "drop", { direction: "right" }, "slow" );
+		}
+		var state = Agents[a].state+"";
+		var status=Agents[a].status+"";
+		var agentStateID = $("#agentState_"+Agents[a].name);
+		var agentStatusID = $("#agentStatus_"+Agents[a].name);
+		if(status =="Available"){
+			if(state == "In a queue call"){
+				agentStatusID.css("background-color", "red");
+			}
+			if(state == "Waiting"){
+				agentStateID.html(state);
+				agentStatusID.css("background-color", "green");
+			}
+			if(state == "Receiving"){
+				agentStateID.html(state);
+				agentStatusID.css("background-color", "yellow");
+			}
+		}else if(status =="On Break"){
+				agentStateID.html("---");
+		}
+	}
+};
+  </script>
+	</head>
+	<body>
+	<div class="ui-layout-center"><div class='columnHeader'>Agents</div>
+				<div id="agentContainer"></div>
+				</div>
+				<div class="ui-layout-north" id="top">
+					    <select name="queueSelect" id="queueSelect">
+						<option>Select A Queue</option>
+					    </select>
+				</div>
+				<div class="ui-layout-south">South</div>
+				<div class="ui-layout-east">
+					<div class='columnHeader'>
+						Calls
+					</div>
+					<div id="callContainer"></div>
+					</div>
+				</div>
+				<div class="ui-layout-west">
+					<div class='columnHeader'>
+						Queue Stats
+					</div>
+					<div id="statsContainer"></div>
+						<div class='statusBox'>
+							Agents
+							<div class='statusInfo'>
+								<div class='statusHeader'>
+									Logged in
+								</div>
+								0
+							</div>
+							<div class='statusInfo'>
+								<div class='statusHeader'>
+									Available
+								</div>
+								0
+							</div>
+							<div class='statusInfo'>
+								<div class='statusHeader'>
+									In Call
+								</div>
+								0
+							</div>
+						</div>
+					</div>
+				</div>
+				</body>
+<script>
+  var socket = io();
+ socket.on('queueFill',function(qf){
+	for(var q=0;q<qf.length;q++){
+		$("#queueSelect").append("<option>"+qf[q].name+"</option>");
+	}
+});
+ socket.on('agentFill',function(af){
+	Agents=af;
+	agentUpdate();
+});
+ socket.on('agentStatusUpdate',function(asu){
+	Agents=asu;
+	agentUpdate();
+	//handleAgentStatus();
+});
+ socket.on('agentStateUpdate',function(asu){
+	Agents=asu;
+	agentUpdate();
+	//handleAgentState();
+	//$("#statsContainer").html(JSON.stringify(asu));
+});
+ socket.on('agentOffering',function(ao){
+	Agents=ao;
+	$("#statsContainer").html(JSON.stringify(ao));
+});
+ socket.on('memberStart',function(mu){
+	Members=mu;
+	handleMemberUpdate();
+});
+ socket.on('queueStats',function(qu){
+	Queues=qu;
+	//alert(JSON.stringify(Queues));
+});
+ socket.on('memberUpdate',function(mu,callback){
+	Members=mu;
+	handleMemberUpdate();
+});
+</script>
+</html>
+
