@@ -63,7 +63,8 @@ function Member(uuid,name,number,agent,agent_uuid,queue,state,call_start,call_jo
 
 //Send html file
 app.get('/', function(req, res){
-  res.sendFile('/var/nodejs/freeswitch_acd/status/index.html');
+  //res.sendFile('index.html');
+  res.sendFile('index.html', { root: __dirname });
 });
 
 http.listen(3000, function(){
@@ -72,13 +73,22 @@ http.listen(3000, function(){
 
 //Polls Freeswitch for number and names of queues
 function getQueues(){
+    queueLine = Array()
     conn.api('callcenter_config queue list', function(res) {
 		var queueList = res.getBody().split("\n");
-		if(queueList.length < 2){
+		for(var q=0;q<queueList.length;q++){
+			if(queueList[q].match(/^(?!name|\+OK)/)){
+				if(queueList[q].length){
+					queueLine.push(queueList[q]);
+				}
+			}
+			
+		}
+		if(queueLine.length < 1){
 			error = "No Queues Configured";
 			errorArray.push(error);	
 		}else{
-			queueCount=(queueList.length-1)/2;
+			queueCount=(queueLine.length);
 			if (debug=='true'){
 				console.log("Number of queues:"+queueCount);
 			}
