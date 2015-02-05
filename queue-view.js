@@ -28,8 +28,9 @@ function Queue(name){
 	this.activeCalls=0;
 	this.totalAgents=0;
 	this.onBreakAgents=0;
-	this.loggedOutAgents=0;
+	this.loggedInAgents=0;
 	this.availableAgents=0;
+	this.agentsInCall=0;
 }
 
 
@@ -102,23 +103,40 @@ function getQueues(){
 }
 
 function queueStats(event){
-	var ev = event['CC-Action'];
-	switch (ev) {
-		case "members-count":
-			for(var q=0;q<queueArray.length;q++){
-				if (queueArray[q].name == event["CC-Queue"]){
-					queueArray[q].activeCalls=event["CC-Count"];	
+	console.log(JSON.stringify(agentArray));
+	for(var q=0;q<queueArray.length;q++){
+		queueArray[q].loggedInAgents=0;
+		queueArray[q].totalAgents=0;
+		queueArray[q].availableAgents=0;
+		queueArray[q].agentsInCall=0;
+		for(var a=0;a<agentArray.length;a++){
+			if(agentArray[a].queue==queueArray[q].name){
+				queueArray[q].totalAgents++;	
+				if (agentArray[a].status == "Available"){
+					queueArray[q].loggedInAgents++;
+					if (agentArray[a].state == "Waiting"){
+						queueArray[q].availableAgents++;
+					}
+					if(agentArray[a].state == "In a queue call"){
+						queueArray[q].agentsInCall++;
+					}
 				}
-			}	
-			break;
-
-		default:
-			break
-
+				if (agentArray[a].status == "Logged Out"){
+					if (queueArray[q].loggedInAgents >=1){
+						queueArray[q].loggedInAgents--;
+					}
+					if (queueArray[q].availableAgents >=1){
+						queueArray[q].availableAgents--;
+					}else{
+						queueArray[q].availableAgents=0;
+					}
+				}
+			}
+		}
 	}
-		
-	
-
+	if(debug=='true'){
+		console.log(JSON.stringify(queueArray));
+	}
 }
 
 
@@ -349,7 +367,8 @@ conn = new esl.Connection('127.0.0.1', 8021, 'ClueCon', function() {
 						console.log("Unhandled Action:"+cc_Action);
 						console.log(json);
 				}	
-				console.log(ev["CC-Action"]);
+				queueStats(ev);
+				//socket.emit('queueStats',  queueArray );
 			}
 		}
 	});

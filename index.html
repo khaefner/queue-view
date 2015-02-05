@@ -253,6 +253,39 @@
 	border-width:2px;
 	border-color:#696969;
   }
+  .statsBox {
+	padding:1px;
+	background: linear-gradient(#e9e9e9, #d3d3d3);
+	box-shadow: rgba(0, 0, 0, .5) 2px 2px 5px;
+	margin-top:10px;
+	border-style:solid;
+	border-width:2px;
+	border-color:white;
+	text-align:center;
+  }
+  .statsHeader{
+	background: #e6e6e6;
+	background-repeat: no-repeat;
+	border-style:solid;
+	border-width:0px 0px 2px 0px;
+	border-color:white;
+	text-align:center;
+	font-size:1.8em;
+  }
+  .statsSubHeader{
+	background: #444444;
+	text-align:center;
+	color:white;
+	width:100%;
+  }
+  .statsData{
+	font-size:1.8em;
+	text-align:center;
+  }
+  .statsContainer{
+	width:100px;
+
+  }
   
   </style>
 <script type="text/javascript">
@@ -296,6 +329,7 @@ $(document).ready(function () {
 			$("#agentContainer").html("");
 			agentUpdate();
 			handleMemberUpdate();
+			queueStatsUpdate();
 		}
 	});
 setInterval(function() {
@@ -402,29 +436,38 @@ function handleMemberUpdate(){
 
 }
 
+function queueStatsUpdate(){
+
+}
+function handleQueueUpdate(){
+
+}
+
+
 function handleAgentState(){
 	var agents=Agents;
+	var agentsLoggedInCount=0;
+	var selectedQueue = $( "#queueSelect option:selected" ).text();
 	for(var a=0;a<agents.length;a++){
 		var state = agents[a].state+"";
 		var status=agents[a].status+"";
 		var agentStateID = $("#agentState_"+agents[a].name);
 		var agentStatusID = $("#agentStatus_"+agents[a].name);
 		if(status =="Available"){
+			agentsLoggedInCount++;
 			if(state == "In a queue call"){
-				agentStatusID.css("background-color", "red");
 			}
 			if(state == "Waiting"){
 				agentStateID.html(state);
-				agentStatusID.css("background-color", "green");
 			}
 			if(state == "Receiving"){
 				agentStateID.html(state);
-				agentStatusID.css("background-color", "yellow");
 			}
 		}else if(status =="On Break"){
 				agentStateID.html("---");
 		}
 	}
+	$("#agentsLoggedIn").html(agentsLoggedInCount);
 }
 
 function handleAgentStatus(){
@@ -558,26 +601,50 @@ function agentUpdate(){
 					<div class='columnHeader'>
 						Queue Stats
 					</div>
-					<div id="statsContainer"></div>
-						<div class='statusBox'>
-							Agents
-							<div class='statusInfo'>
-								<div class='statusHeader'>
+					<div id="statsContainer" class="statsContainer"></div>
+						<div class='statsBox'>
+							<div class='statsHeader'>
+								Agents
+							</div>
+							<div class='statsInfo'>
+								<div class='statsSubHeader'>
+									Total
+								</div>
+								<div id='agentsTotal' class='statsData'>
+								0
+								</div>
+							</div>
+							<div class='statsInfo'>
+								<div class='statsSubHeader'>
 									Logged in
 								</div>
+								<div id='agentsLoggedIn' class='statsData'>
 								0
+								</div>
 							</div>
-							<div class='statusInfo'>
-								<div class='statusHeader'>
+							<div class='statsInfo'>
+								<div class='statsSubHeader'>
 									Available
 								</div>
+								<div class='statsData'>
 								0
+								</div>
 							</div>
-							<div class='statusInfo'>
-								<div class='statusHeader'>
+							<div class='statsInfo'>
+								<div class='statsSubHeader'>
 									In Call
 								</div>
+								<div class='statsData'>
 								0
+								</div>
+							</div>
+							<div class='statsInfo'>
+								<div class='statsSubHeader'>
+									On Break
+								</div>
+								<div class='statsData'>
+								0
+								</div>
 							</div>
 						</div>
 					</div>
@@ -597,12 +664,11 @@ function agentUpdate(){
  socket.on('agentStatusUpdate',function(asu){
 	Agents=asu;
 	agentUpdate();
-	//handleAgentStatus();
+	//handleAgentState();
 });
  socket.on('agentStateUpdate',function(asu){
 	Agents=asu;
 	agentUpdate();
-	//handleAgentState();
 	//$("#statsContainer").html(JSON.stringify(asu));
 });
  socket.on('agentOffering',function(ao){
@@ -615,7 +681,7 @@ function agentUpdate(){
 });
  socket.on('queueStats',function(qu){
 	Queues=qu;
-	//alert(JSON.stringify(Queues));
+	alert(JSON.stringify(Queues));
 });
  socket.on('memberUpdate',function(mu,callback){
 	Members=mu;
