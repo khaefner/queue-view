@@ -109,6 +109,7 @@ function queueStats(event){
 		queueArray[q].totalAgents=0;
 		queueArray[q].availableAgents=0;
 		queueArray[q].agentsInCall=0;
+		queueArray[q].onBreakAgents=0;
 		for(var a=0;a<agentArray.length;a++){
 			if(agentArray[a].queue==queueArray[q].name){
 				queueArray[q].totalAgents++;	
@@ -125,6 +126,15 @@ function queueStats(event){
 					if (queueArray[q].loggedInAgents >=1){
 						queueArray[q].loggedInAgents--;
 					}
+					if (queueArray[q].availableAgents >=1){
+						queueArray[q].availableAgents--;
+					}else{
+						queueArray[q].availableAgents=0;
+					}
+				}
+				if (agentArray[a].status == "On Break"){
+					queueArray[q].onBreakAgents++;
+					queueArray[q].loggedInAgents++;
 					if (queueArray[q].availableAgents >=1){
 						queueArray[q].availableAgents--;
 					}else{
@@ -313,6 +323,7 @@ conn = new esl.Connection('127.0.0.1', 8021, 'ClueCon', function() {
 	io.on('connection', function(socket){
 	socket.emit('agentFill',  agentArray );
 	socket.emit('queueFill',  queueArray );
+	socket.emit('queueStats',  queueArray );
 	socket.emit('memberUpdate',  memberArray );
 	socket.emit('agentStatusUpdate',  agentArray );
 	conn.events("plain", "all");
@@ -368,7 +379,7 @@ conn = new esl.Connection('127.0.0.1', 8021, 'ClueCon', function() {
 						console.log(json);
 				}	
 				queueStats(ev);
-				//socket.emit('queueStats',  queueArray );
+				socket.emit('queueStats',  queueArray );
 			}
 		}
 	});

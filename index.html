@@ -437,10 +437,26 @@ function handleMemberUpdate(){
 }
 
 function queueStatsUpdate(){
-
-}
-function handleQueueUpdate(){
-
+	
+	//alert(JSON.stringify(Queues));
+	var queue = Queues;
+	var totalAgents=0;
+	var loggedInAgents=0;
+	var availableAgents=0;
+	var onBreakAgents=0;
+	for(var q=0;q<queue.length;q++){
+		totalAgents = queue[q].totalAgents;
+		loggedInAgents = queue[q].loggedInAgents;
+		availableAgents = queue[q].availableAgents;
+		onBreakAgents = queue[q].onBreakAgents;
+		var selectedQueue = $( "#queueSelect option:selected" ).text();
+			if(queue[q].name == selectedQueue){ //will need something about joined here
+				$("#agentsTotal").html(totalAgents);
+				$("#agentsLoggedIn").html(loggedInAgents);
+				$("#agentsAvailable").html(availableAgents);
+				$("#agentsOnBreak").html(onBreakAgents);
+			}
+	}
 }
 
 
@@ -515,6 +531,14 @@ function displayMembers(){
 	}
 	$("#callContainer").append(htmlOut);
 }
+
+
+function updateStats(){
+	
+
+}
+
+
 
 function agentUpdate(){
 	var htmlOut="";
@@ -611,7 +635,7 @@ function agentUpdate(){
 									Total
 								</div>
 								<div id='agentsTotal' class='statsData'>
-								0
+									--	
 								</div>
 							</div>
 							<div class='statsInfo'>
@@ -619,31 +643,31 @@ function agentUpdate(){
 									Logged in
 								</div>
 								<div id='agentsLoggedIn' class='statsData'>
-								0
+									--	
 								</div>
 							</div>
 							<div class='statsInfo'>
 								<div class='statsSubHeader'>
 									Available
 								</div>
-								<div class='statsData'>
-								0
+								<div id='agentsAvailable' class='statsData'>
+									--	
 								</div>
 							</div>
 							<div class='statsInfo'>
 								<div class='statsSubHeader'>
 									In Call
 								</div>
-								<div class='statsData'>
-								0
+								<div id='agentsInCall' class='statsData'>
+									--	
 								</div>
 							</div>
 							<div class='statsInfo'>
 								<div class='statsSubHeader'>
 									On Break
 								</div>
-								<div class='statsData'>
-								0
+								<div id='agentsOnBreak' class='statsData'>
+									--	
 								</div>
 							</div>
 						</div>
@@ -681,7 +705,7 @@ function agentUpdate(){
 });
  socket.on('queueStats',function(qu){
 	Queues=qu;
-	alert(JSON.stringify(Queues));
+	queueStatsUpdate();
 });
  socket.on('memberUpdate',function(mu,callback){
 	Members=mu;
