@@ -26,6 +26,7 @@ var openSocket;
 function Queue(name){
 	this.name=name;
 	this.activeCalls=0;
+	this.totalCalls=0;
 	this.totalAgents=0;
 	this.onBreakAgents=0;
 	this.loggedInAgents=0;
@@ -103,13 +104,18 @@ function getQueues(){
 }
 
 function queueStats(event){
-	console.log(JSON.stringify(agentArray));
 	for(var q=0;q<queueArray.length;q++){
 		queueArray[q].loggedInAgents=0;
 		queueArray[q].totalAgents=0;
 		queueArray[q].availableAgents=0;
 		queueArray[q].agentsInCall=0;
 		queueArray[q].onBreakAgents=0;
+		if(event['CC-Action'] == 'member-queue-start'){
+			if(queueArray[q].name == event['CC-Queue']){
+				queueArray[q].totalCalls++;
+			}
+		}
+		//Begin Agents Stat Collection
 		for(var a=0;a<agentArray.length;a++){
 			if(agentArray[a].queue==queueArray[q].name){
 				queueArray[q].totalAgents++;	
@@ -337,9 +343,8 @@ conn = new esl.Connection('127.0.0.1', 8021, 'ClueCon', function() {
 				cc_Action= ev["CC-Action"];
 				switch (cc_Action){
 					case "members-count":
-						console.log(json);
-						queueStats(ev);
-						socket.emit('queueStats',  queueArray );
+						//queueStats(ev);
+						//socket.emit('queueStats',  queueArray );
 						break;
 					case "member-queue-start":
 						handleMemberQueueStart(ev);
@@ -378,6 +383,7 @@ conn = new esl.Connection('127.0.0.1', 8021, 'ClueCon', function() {
 						console.log("Unhandled Action:"+cc_Action);
 						console.log(json);
 				}	
+				//console.log(json);
 				queueStats(ev);
 				socket.emit('queueStats',  queueArray );
 			}
