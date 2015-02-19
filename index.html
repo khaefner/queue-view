@@ -445,19 +445,37 @@ function queueStatsUpdate(){
 	var availableAgents=0;
 	var onBreakAgents=0;
 	var onCallAgents=0;
+	var totalCalls=0;
+	var activeCalls=0;
+	var answeredCalls=0;
+	var abandonedCalls=0;
+	var abandonedTime=0;
+	var longestWait=0;
 	for(var q=0;q<queue.length;q++){
 		totalAgents = queue[q].totalAgents;
 		loggedInAgents = queue[q].loggedInAgents;
 		availableAgents = queue[q].availableAgents;
 		onBreakAgents = queue[q].onBreakAgents;
 		onCallAgents = queue[q].agentsInCall;
-		var selectedQueue = $( "#queueSelect option:selected" ).text();
+		totalCalls = queue[q].totalCalls;
+		activeCalls= queue[q].activeCalls;
+		answeredCalls= queue[q].answeredCalls;
+		abandonedCalls=queue[q].abandonedCalls;
+		abandonedTime=queue[q].abandonedTime;
+		longestWait=queue[q].longestWait;
+		selectedQueue = $( "#queueSelect option:selected" ).text();
 			if(queue[q].name == selectedQueue){ //will need something about joined here
 				$("#agentsTotal").html(totalAgents);
 				$("#agentsLoggedIn").html(loggedInAgents);
 				$("#agentsAvailable").html(availableAgents);
 				$("#agentsOnBreak").html(onBreakAgents);
 				$("#agentsInCall").html(onCallAgents);
+				$("#callsTotal").html(totalCalls);
+				$("#callsConnected").html(activeCalls);
+				$("#callsAnswered").html(answeredCalls);
+				$("#callsAbandonded").html(abandonedCalls);
+				$("#callsWait").html(longestWait);
+				$("#abandonTime").html(abandonedTime);
 			}
 	}
 }
@@ -715,6 +733,14 @@ function agentUpdate(){
 									Longest Wait	
 								</div>
 								<div id='callsWait' class='statsData'>
+									--	
+								</div>
+							</div>
+							<div class='statsInfo'>
+								<div class='statsSubHeader'>
+									Abandon Time
+								</div>
+								<div id='abandonTime' class='statsData'>
 									--	
 								</div>
 							</div>

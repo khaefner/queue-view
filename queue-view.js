@@ -25,13 +25,17 @@ var openSocket;
 //Objects
 function Queue(name){
 	this.name=name;
-	this.activeCalls=0;
 	this.totalCalls=0;
+	this.activeCalls=0;
+	this.answeredCalls=0;
+	this.agentsInCall=0;
+	this.abandonedCalls=0;
+	this.abandonedTime=0;
+	this.longestWait=0;
 	this.totalAgents=0;
 	this.onBreakAgents=0;
 	this.loggedInAgents=0;
 	this.availableAgents=0;
-	this.agentsInCall=0;
 }
 
 
@@ -104,15 +108,48 @@ function getQueues(){
 }
 
 function queueStats(event){
+	//console.log(JSON.stringify(event));
 	for(var q=0;q<queueArray.length;q++){
 		queueArray[q].loggedInAgents=0;
 		queueArray[q].totalAgents=0;
 		queueArray[q].availableAgents=0;
 		queueArray[q].agentsInCall=0;
 		queueArray[q].onBreakAgents=0;
-		if(event['CC-Action'] == 'member-queue-start'){
-			if(queueArray[q].name == event['CC-Queue']){
+		if(queueArray[q].name == event['CC-Queue']){
+			if(event['CC-Action'] == 'member-queue-start'){
 				queueArray[q].totalCalls++;
+				queueArray[q].activeCalls++;
+			}
+			if(event['CC-Action'] == 'member-queue-end'){
+				if(queueArray[q].activeCalls>=1){
+					queueArray[q].activeCalls--;
+					joinTime = event['CC-Member-Joined-Time'];
+					answerTime = event['CC-Agent-Answered-Time'];
+					if(answerTime > 0){
+						waitTime = answerTime-joinTime;
+						if(queueArray[q].longestWait < waitTime){
+							queueArray[q].longestWait=waitTime;
+						}
+					}	
+				}
+			}
+			if(event['CC-Action'] == 'bridge-agent-start'){
+					queueArray[q].agentInCall++;
+					queueArray[q].answeredCalls++;
+			}
+			if(event['CC-Action'] == 'bridge-agent-end'){
+				if(queueArray[q].agentInCall>=1){
+					queueArray[q].agentInCall--;
+				}
+			}
+			if(event['CC-Cancel-Reason'] == "BREAK_OUT"){
+				queueArray[q].abandonedCalls++;
+				joinTime= event['CC-Member-Joined-Time'];
+				leaveTime= event['CC-Member-Leaving-Time'];
+				abandonTime = leaveTime-joinTime;
+				if(queueArray[q].abandonedTime < abandonTime){
+					queueArray[q].abandonedTime=abandonTime;
+				}	
 			}
 		}
 		//Begin Agents Stat Collection
