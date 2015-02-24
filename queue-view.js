@@ -4,6 +4,7 @@ var app = require('express')();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var esl = require('modesl');
+var serialize = require('serialize');
 
 //static content
 app.use(express.static(__dirname + '/public'));
@@ -20,7 +21,9 @@ var queueState="";
 var errorArray = new Array();
 var agentArray = new Array();
 var memberArray = new Array();
+var callArray = new Array();
 var openSocket;
+
 
 //Objects
 function Queue(name){
@@ -117,10 +120,20 @@ function queueStats(event){
 		queueArray[q].onBreakAgents=0;
 		if(queueArray[q].name == event['CC-Queue']){
 			if(event['CC-Action'] == 'member-queue-start'){
-				queueArray[q].totalCalls++;
-				queueArray[q].activeCalls++;
+				var member = ev['CC-Member-UUID'];
+				if(typeof member != 'undefined'){
+					callArray.unshift(ev['CC-Member-UUID']);
+				}
+				var isInQueue = callArray.indexOf(event['CC-Member-UUID']);
+				if(isInQueue == 0){
+					console.log("Start CALL"+isInQueue);
+					queueArray[q].totalCalls++;
+					queueArray[q].activeCalls++;
+				}else{
+				}
 			}
 			if(event['CC-Action'] == 'member-queue-end'){
+				callArray.splice(isInQueue,1);
 				if(queueArray[q].activeCalls>=1){
 					queueArray[q].activeCalls--;
 					joinTime = event['CC-Member-Joined-Time'];
@@ -188,8 +201,9 @@ function queueStats(event){
 		}
 	}
 	if(debug=='true'){
-		console.log(JSON.stringify(queueArray));
+		//console.log(JSON.stringify(queueArray));
 	}
+	console.log(JSON.stringify(callArray));
 }
 
 
@@ -380,8 +394,6 @@ conn = new esl.Connection('127.0.0.1', 8021, 'ClueCon', function() {
 				cc_Action= ev["CC-Action"];
 				switch (cc_Action){
 					case "members-count":
-						//queueStats(ev);
-						//socket.emit('queueStats',  queueArray );
 						break;
 					case "member-queue-start":
 						handleMemberQueueStart(ev);

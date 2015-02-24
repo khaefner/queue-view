@@ -2,11 +2,12 @@
 <html>
 <head>
 <title>Queue View</title>
-<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
-<script src="http://code.jquery.com/ui/1.11.1/jquery-ui.min.js"></script>
-<script src="http://layout.jquery-dev.com/lib/js/jquery.layout-latest.js"></script>
+<!--<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>-->
+<script src="/jquery/jquery-1.11.1.min.js"></script>
+<script src="/jquery/jquery-ui.min.js"></script>
+<script src="/jquery/jquery.layout-latest.js"></script>
 <script src="/socket.io/socket.io.js"></script>
-<link rel="stylesheet" href="http://code.jquery.com/ui/1.11.1/themes/smoothness/jquery-ui.css">
+<link rel="stylesheet" href="/jquery/jquery-ui.css">
 <style>
   label { display: block; }
   select { width: 200px; }
@@ -317,7 +318,7 @@ $(document).ready(function () {
 			applyDemoStyles: true,
 			north__size:.1,
 			east__size:.4,
-			west__size:.2,
+			west__size:.1,
 			west__minSize:.15,
 			west__maxSize:.25,
 			east__minSize:.3,
@@ -399,10 +400,7 @@ function handleMemberUpdate(){
 		if(Members[m].state == "Bridged"){
 			var callBox=$("#callBox_"+Members[m].uuid);
 			var agentState=$("#agentState_"+Members[m].agent);
-			callBox.effect("transfer",{ to: agentState, className:"callTransfer" }, 500,
-				function () {callBox.hide( "drop", { direction: "left" }, "slow"
-				 )}
-			);
+			callBox.hide("drop", { direction: "left" }, "slow");
 			var htmlOut="";
 			htmlOut+="<div class='bridgedStatus' id='bridgedStatus_"+Members[m].uuid+"'>";
 			htmlOut+="<div class='bridgedID'><div class='bridgedName'>"+Members[m].name+"</div><div class='bridgedNumber'>"+Members[m].number+"</div></div>";
@@ -435,6 +433,25 @@ function handleMemberUpdate(){
 	}
 
 }
+
+function flash(element){
+	//old_background= element.css("background-color");
+	element.css('backgroundColor','hsl(0,100%,50%');
+
+	var d = 100;
+	for(var i=50; i<=100; i=i+0.1){
+	    d  += 10;
+	    (function(ii,dd){
+		setTimeout(function(){
+		    element.css('backgroundColor','hsl(0,100%,'+ii+'%)'); 
+		}, dd);    
+	    })(i,d);
+	}
+	//element.css("background-color",old_background);
+
+}
+
+
 
 function queueStatsUpdate(){
 	
@@ -470,6 +487,7 @@ function queueStatsUpdate(){
 				$("#agentsAvailable").html(availableAgents);
 				$("#agentsOnBreak").html(onBreakAgents);
 				$("#agentsInCall").html(onCallAgents);
+				//flash($("#callsTotal"));
 				$("#callsTotal").html(totalCalls);
 				$("#callsConnected").html(activeCalls);
 				$("#callsAnswered").html(answeredCalls);
@@ -551,12 +569,6 @@ function displayMembers(){
 		}
 	}
 	$("#callContainer").append(htmlOut);
-}
-
-
-function updateStats(){
-	
-
 }
 
 
@@ -770,7 +782,7 @@ function agentUpdate(){
 });
  socket.on('agentOffering',function(ao){
 	Agents=ao;
-	$("#statsContainer").html(JSON.stringify(ao));
+	//$("#statsContainer").html(JSON.stringify(ao));
 });
  socket.on('memberStart',function(mu){
 	Members=mu;
