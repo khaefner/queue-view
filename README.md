@@ -3,10 +3,9 @@ queue-view
 
 See the state of freeswitch queues
 
-
-###################################
+<blockquote>
 Installation
-###################################
+</blockquote>
 
 
 ###################################
