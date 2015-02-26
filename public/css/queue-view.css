@@ -1,0 +1,287 @@
+
+  label { display: block; }
+  select { width: 200px; }
+
+  .callBox {
+	padding:1px;
+	overflow:hidden;
+	background: linear-gradient(#e9e9e9, #d3d3d3);
+	box-shadow: rgba(0, 0, 0, .5) 2px 2px 5px;
+	margin-top:10px;
+	height:60px;
+	border-style:solid;
+	border-width:2px;
+	border-color:white;
+  }
+  .agentBox {
+	padding:1px;
+	overflow:hidden;
+	background: linear-gradient(#e9e9e9, #d3d3d3);
+	box-shadow: rgba(0, 0, 0, .5) 2px 2px 5px;
+	margin-top:10px;
+	height:75px;
+	border-style:solid;
+	border-width:2px;
+	border-color:white;
+  }
+  .statusBox {
+	padding:1px;
+	background: linear-gradient(#e9e9e9, #d3d3d3);
+	box-shadow: rgba(0, 0, 0, .5) 2px 2px 5px;
+	margin-top:10px;
+	height:75px;
+	border-style:solid;
+	border-width:2px;
+	border-color:white;
+  }
+  .statusHeader{
+	background: #444444;
+	text-align:center;
+	color:white;
+	width:100%;
+  }
+  .statusInfo {
+	float:left;
+	height:100%;
+	background: #e6e6e6;
+	background-repeat: no-repeat;
+	border-style:solid;
+	border-width:0px 2px 0px 0px;
+	border-color:white;
+	position:relative;
+	text-align:center;
+	min-width:55px;
+
+  }
+  .statusLabel{
+       float:left;
+	height:100%;
+	width:20px;
+	font-size:0.8em;
+	background: #444444;
+	color:white;
+	text-align:center;
+	border-style:solid;
+	border-width:0px 2px 0px 0px;
+	border-color:white;
+  }
+  .agentAvatar {
+	float:left;
+	width:100px;
+	height:100%;
+	background: #e6e6e6 url('/images/agent.png');
+	background-size: 50px 50px;
+	background-position: center bottom;
+	text-align:right;
+	background-repeat: no-repeat;
+	border-style:solid;
+	border-width:0px 2px 0px 0px;
+	border-color:white;
+	position:relative;
+  }
+  .bridgedInfo {
+	float:left;
+	height:100%;
+	background: #e6e6e6;
+	background-repeat: no-repeat;
+	border-style:solid;
+	border-width:0px 2px 0px 0px;
+	border-color:white;
+	position:relative;
+	min-width:50px;
+	text-align:center;
+
+  }
+  .bridgedID{
+	float:left;
+	width:50%;
+  }
+  .bridgederName{
+	font-size:1.3em;
+	color:#151515;
+  }
+  .bridgederNumber{
+	font-size:1.2em;
+	color:#2A2A2A;
+  }
+  .bridgedTimer {
+	float:left;
+	position:relative;
+	color:#444444;
+	font-size:1.3em;
+	text-align:center;
+	width:50%;
+   }
+  .bridgedStatus {
+	height:100%;
+	background: #e6e6e6;
+	position:relative;
+	overflow:hidden;
+  }
+  .bridgedIcon {
+	float:left;
+	width:40px;
+	height:100%;
+	background: #e6e6e6 url('/images/phone.png');
+	background-size: 40px 40px;
+	background-position: center center;
+	text-align:right;
+	background-repeat: no-repeat;
+	border-style:solid;
+	border-width:0px 2px 0px 0px;
+	border-color:white;
+  }
+  .bridgedInfoHeader{
+	background: #444444;
+	text-align:center;
+	color:white;
+	width:100%;
+  }
+
+  .callTransfer { border: 2px dotted gray; } 
+  .callInfo {
+	float:left;
+	height:100%;
+	background: #e6e6e6;
+	background-repeat: no-repeat;
+	border-style:solid;
+	border-width:0px 2px 0px 0px;
+	border-color:white;
+	position:relative;
+	min-width:200px;
+	text-align:center;
+
+  }
+  .callerName{
+	color:#151515;
+  }
+  .callerNumber{
+	color:#2A2A2A;
+  }
+  .callTimer {
+	position:relative;
+	color:#444444;
+	font-size:1.5em;
+	text-align:center;
+   }
+  .callStatus {
+	height:100%;
+	background: #e6e6e6;
+	position:relative;
+	overflow:hidden;
+  }
+  .callIcon {
+	float:left;
+	width:40px;
+	height:100%;
+	background: #e6e6e6 url('/images/phone.png');
+	background-size: 40px 40px;
+	background-position: center center;
+	text-align:right;
+	background-repeat: no-repeat;
+	border-style:solid;
+	border-width:0px 2px 0px 0px;
+	border-color:white;
+  }
+  .callInfoHeader{
+	background: #444444;
+	text-align:center;
+	color:white;
+	width:100%;
+  }
+  .agentInfo {
+	float:left;
+	height:100%;
+	background: #e6e6e6;
+	background-size: 40px 40px;
+	background-repeat: no-repeat;
+	border-style:solid;
+	border-width:0px 2px 0px 0px;
+	border-color:white;
+	position:relative;
+	min-width:50px;
+	text-align:center;
+
+  }
+  .agentStatusInfo {
+	height:100%;
+	background: #e6e6e6;
+	background-size: 40px 40px;
+	background-repeat: no-repeat;
+	position:relative;
+	min-width:50px;
+	text-align:center;
+	overflow:hidden;
+  }
+
+  .agentInfoHeader{
+	background: #444444;
+	text-align:center;
+	color:white;
+	width:100%;
+  }
+
+  .agentStatus{
+       background:green;
+	position:absolute; top:0;
+	height:100%;
+	width:20px;
+  }
+  .agentStateIcon{
+       background: url('/images/phone_ready.png');
+	background-size: 20px 40px;
+	background-position: center bottom;
+	background-repeat: no-repeat;
+	position:absolute; top:0;
+	height:100%;
+	width:25px;
+  }
+
+  .columnHeader{
+	background: linear-gradient(#e9e9e9, #d3d3d3);
+	padding:5px;
+	border-style:solid;
+	border-width:2px;
+	border-color:#696969;
+  }
+  .statsBox {
+	padding:1px;
+	background: linear-gradient(#e9e9e9, #d3d3d3);
+	box-shadow: rgba(0, 0, 0, .5) 2px 2px 5px;
+	margin-top:10px;
+	border-style:solid;
+	border-width:2px;
+	border-color:white;
+	text-align:center;
+  }
+  .statsHeader{
+	background: #e6e6e6;
+	background-repeat: no-repeat;
+	border-style:solid;
+	border-width:0px 0px 2px 0px;
+	border-color:white;
+	text-align:center;
+	font-size:1.8em;
+  }
+  .statsSubHeader{
+	background: #444444;
+	text-align:center;
+	color:white;
+	width:100%;
+  }
+  .statsData{
+	font-size:1.8em;
+	text-align:center;
+  }
+  .statsContainer{
+	width:100px;
+
+  }
+
+  #logo {
+	font-size:2.8em;
+        text-align:right;
+	float:right;
+	margin-left: auto;
+    	margin-right: 50%;
+  }
