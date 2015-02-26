@@ -8,6 +8,7 @@
 <script src="/jquery/jquery.layout-latest.js"></script>
 <script src="/socket.io/socket.io.js"></script>
 <link rel="stylesheet" href="/jquery/jquery-ui.css">
+<link rel="icon" href="/images/queue-view-favicon.png">
 <style>
   label { display: block; }
   select { width: 200px; }
@@ -287,6 +288,14 @@
 	width:100px;
 
   }
+
+  #logo {
+	font-size:2.8em;
+        text-align:right;
+	float:right;
+	margin-left: auto;
+    	margin-right: 50%;
+  }
   
   </style>
 <script type="text/javascript">
@@ -467,6 +476,7 @@ function queueStatsUpdate(){
 	var answeredCalls=0;
 	var abandonedCalls=0;
 	var abandonedTime=0;
+	var abandonedTimeSeconds=0;
 	var longestWait=0;
 	for(var q=0;q<queue.length;q++){
 		totalAgents = queue[q].totalAgents;
@@ -479,7 +489,13 @@ function queueStatsUpdate(){
 		answeredCalls= queue[q].answeredCalls;
 		abandonedCalls=queue[q].abandonedCalls;
 		abandonedTime=queue[q].abandonedTime;
+		abandonedTimeSeconds = pad(abandonedTime % 60,2);
+		abandonedTimeMinutes = pad(Math.floor(abandonedTime / 60),2);
+		abandonedTimeHours = pad(Math.floor(abandonedTime / 3600),2);
 		longestWait=queue[q].longestWait;
+		longestWaitSeconds=pad(longestWait % 60,2);
+		longestWaitMinutes=pad(Math.floor(longestWait / 60),2);
+		longestWaitHours=pad(Math.floor(longestWait / 3600),2);
 		selectedQueue = $( "#queueSelect option:selected" ).text();
 			if(queue[q].name == selectedQueue){ //will need something about joined here
 				$("#agentsTotal").html(totalAgents);
@@ -492,8 +508,8 @@ function queueStatsUpdate(){
 				$("#callsConnected").html(activeCalls);
 				$("#callsAnswered").html(answeredCalls);
 				$("#callsAbandonded").html(abandonedCalls);
-				$("#callsWait").html(longestWait);
-				$("#abandonTime").html(abandonedTime);
+				$("#callsWait").html(longestWaitHours+":"+longestWaitMinutes+":"+longestWaitSeconds);
+				$("#abandonTime").html(abandonedTimeHours+":"+abandonedTimeMinutes+":"+abandonedTimeSeconds);
 			}
 	}
 }
@@ -645,6 +661,9 @@ function agentUpdate(){
 					    <select name="queueSelect" id="queueSelect">
 						<option>Select A Queue</option>
 					    </select>
+					<div id='logo'>
+						Queue View
+					</div>
 				</div>
 				<div class="ui-layout-south">South</div>
 				<div class="ui-layout-east">

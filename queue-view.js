@@ -4,7 +4,6 @@ var app = require('express')();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var esl = require('modesl');
-var serialize = require('serialize');
 
 //static content
 app.use(express.static(__dirname + '/public'));
@@ -120,20 +119,21 @@ function queueStats(event){
 		queueArray[q].onBreakAgents=0;
 		if(queueArray[q].name == event['CC-Queue']){
 			if(event['CC-Action'] == 'member-queue-start'){
-				var member = ev['CC-Member-UUID'];
+				queueArray[q].totalCalls++;
+				queueArray[q].activeCalls++;
+				/*var member = ev['CC-Member-UUID'];
 				if(typeof member != 'undefined'){
-					callArray.unshift(ev['CC-Member-UUID']);
+					var isInQueue = callArray.indexOf(event['CC-Member-UUID']);
+					if(isInQueue < 0){ //not in array
+						callArray.unshift(ev['CC-Member-UUID']);
+						queueArray[q].totalCalls++;
+						queueArray[q].activeCalls++;
+					}
 				}
-				var isInQueue = callArray.indexOf(event['CC-Member-UUID']);
-				if(isInQueue == 0){
-					console.log("Start CALL"+isInQueue);
-					queueArray[q].totalCalls++;
-					queueArray[q].activeCalls++;
-				}else{
-				}
+				*/
 			}
 			if(event['CC-Action'] == 'member-queue-end'){
-				callArray.splice(isInQueue,1);
+				//callArray.splice(isInQueue,1);
 				if(queueArray[q].activeCalls>=1){
 					queueArray[q].activeCalls--;
 					joinTime = event['CC-Member-Joined-Time'];
@@ -203,7 +203,6 @@ function queueStats(event){
 	if(debug=='true'){
 		//console.log(JSON.stringify(queueArray));
 	}
-	console.log(JSON.stringify(callArray));
 }
 
 
@@ -364,25 +363,38 @@ function getMemberStatus(queueName){
 	});
 }
 
-function handleQueueCount(event){
-
-}
 
 if (debug=='true'){
 	console.log("Debugging enabled");
 }
 
 
+function initClients(){
+	io.on('connection', function(socket){
+		socket.emit('agentFill',  agentArray );
+		socket.emit('queueFill',  queueArray );
+		socket.emit('queueStats',  queueArray );
+	});
+
+}
+
+
+function sendToClients(){
+	io.sockets.emit('queueStats',  queueArray );
+	io.sockets.emit('memberUpdate',  memberArray );
+	io.sockets.emit('memberStart',  memberArray );
+	io.sockets.emit('agentStatusUpdate',  agentArray );
+	io.sockets.emit('agentStateUpdate',  agentArray );
+	io.sockets.emit('agentOffering',  agentArray );
+}
+
+
+
 //open a connection
 conn = new esl.Connection('127.0.0.1', 8021, 'ClueCon', function() {
 	getQueues();
 	getAgents();
-	io.on('connection', function(socket){
-	socket.emit('agentFill',  agentArray );
-	socket.emit('queueFill',  queueArray );
-	socket.emit('queueStats',  queueArray );
-	socket.emit('memberUpdate',  memberArray );
-	socket.emit('agentStatusUpdate',  agentArray );
+	initClients();
 	conn.events("plain", "all");
 	conn.on('**', function(e) {
 		name=e.getHeader('Event-Name');
@@ -397,32 +409,23 @@ conn = new esl.Connection('127.0.0.1', 8021, 'ClueCon', function() {
 						break;
 					case "member-queue-start":
 						handleMemberQueueStart(ev);
-						socket.emit('memberStart',  memberArray );
-						//socket.emit('memberUpdate',  memberArray );
 						break;
 					case "member-queue-end":
 						handleMemberQueueStop(ev);
-						socket.emit('memberUpdate',  memberArray );
 						break;
 					case "member-queue-join":
-						//console.log(json);
 						break;
 					case "agent-status-change":
 						handleAgentStatus(ev);
-						socket.emit('agentStatusUpdate',  agentArray );
 						break;
 					case "agent-state-change":
 						handleAgentState(ev);
-						socket.emit('agentStateUpdate',  agentArray );
 						break;
 					case "agent-offering":
 						handleAgentOffering(ev);
-						socket.emit('agentOffer',  agentArray );
 						break;
 					case "bridge-agent-start":
 						handleMemberQueueUpdate(ev);
-						console.log(JSON.stringify(memberArray));
-						socket.emit('memberUpdate',  memberArray );
 						break;
 					case "bridge-agent-end":
 						break;
@@ -434,10 +437,9 @@ conn = new esl.Connection('127.0.0.1', 8021, 'ClueCon', function() {
 				}	
 				//console.log(json);
 				queueStats(ev);
-				socket.emit('queueStats',  queueArray );
+				sendToClients();
 			}
 		}
 	});
-});
 });
 
