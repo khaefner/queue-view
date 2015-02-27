@@ -1,16 +1,22 @@
 queue-view
 ==========
 
-See the state of freeswitch queues
+See the state of freeswitch mod_callcenter queues.   This is a Read-Only interface to see the state of the queue.  It uses Node.js and the modesl 
 
 Installation
 ------------
 
 <blockquote>
-Install node.js server
+<ul>
+<li>Install node.js server
 <p>sudo yum install nodejs npm</p>
-Install modesl
+<li>cd /usr/share
+</li>
+<li>git clone git://github.com/khaefner/queue-view</li>
+<li>Install express
 <p> npm install --save express</p>
+</li>
+</ul>
 </blockquote>
 
 
