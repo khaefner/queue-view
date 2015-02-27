@@ -1,7 +1,7 @@
 queue-view
 ==========
 
-See the state of freeswitch mod_callcenter queues.   This is a Read-Only interface to see the state of the queue.  It uses Node.js and the modesl 
+See the state of freeswitch mod_callcenter queues.   This is a dynamic read-only interface to see the state of the queue.  It uses Node.js and the modesl to provide real-time status of mod_callcenter. 
 
 Installation
 ------------
@@ -16,21 +16,29 @@ Installation
 <li>Install express
 <p> npm install --save express</p>
 </li>
+<li>Copy queue_view to /etc/init.d</li>
 </ul>
 </blockquote>
-
 
 
 Configuration
 ------------
 
 <blockquote>
-
+<p>By default the webpage listens on port 3000 so you will need to make sure that 3000 is open in the firewall (there is a config below for cfengine to open this up on SIPX)</p>
 </blockquote>
 
-###################################
+Usage
+-----
+
+<blockquote>
+<ul>
+<li>Start the service /etc/init.d/queue-view</li>
+<li>Point your browser to http://your-server:3000</li>
+</blockquote>
+
 FIREWALL CONFIG
-###################################
+------------
 
 If you run a firewall on sipx (and you should!)  You'll need to open incoming connections to port 3000.
 

@@ -8,7 +8,7 @@ var esl = require('modesl');
 //static content
 app.use(express.static(__dirname + '/public'));
 
-debug='true';
+debug='false';
 
 //Sync
 currentQueue=0;
