@@ -3,8 +3,10 @@ queue-view
 
 See the state of freeswitch queues
 
+Installation
+------------
+
 <blockquote>
-<b>Installation</b>
 Install node.js server
 <p>sudo yum install nodejs npm</p>
 Install modesl
@@ -12,9 +14,13 @@ Install modesl
 </blockquote>
 
 
-###################################
+
 Configuration
-###################################
+------------
+
+<blockquote>
+
+</blockquote>
 
 ###################################
 FIREWALL CONFIG
