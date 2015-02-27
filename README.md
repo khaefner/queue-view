@@ -4,7 +4,11 @@ queue-view
 See the state of freeswitch queues
 
 <blockquote>
-Installation
+<b>Installation</b>
+Install node.js server
+<p>sudo yum install nodejs npm</p>
+Install modesl
+<p> npm install --save express</p>
 </blockquote>
 
 
