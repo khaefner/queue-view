@@ -33,7 +33,7 @@ Usage
 
 <blockquote>
 <ul>
-<li>Start the service /etc/init.d/queue-view</li>
+<li>Start the service /etc/init.d/queue-view or for debug node queue-view.js</li>
 <li>Point your browser to http://your-server:3000</li>
 </blockquote>
 
