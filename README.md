@@ -50,5 +50,6 @@ When you run iptables -L you shoudl see this line:
 ACCEPT     tcp  --  anywhere             anywhere            tcp dpt:hbci state NEW,ESTABLISHED /* QueueView Web UI */ 
 
 ![alt tag](https://github.com/khaefner/queue-view/blob/master/queue-view.png)
+![alt tag](https://github.com/khaefner/queue-view/blob/master/queue-view.gif)
 
  
