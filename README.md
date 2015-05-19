@@ -13,6 +13,7 @@ Installation
 <li>cd /usr/share
 </li>
 <li>git clone git://github.com/khaefner/queue-view</li>
+<li> cd queue-view</li>
 <li>Install express
 <p> npm install --save express</p>
 </li>

@@ -16,6 +16,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 **/
 
+//use mongo
+var mongo = 'true';
+
+//debug
+debug='true';
+
 
 //#!/usr/bin/env node
 var express = require('express');
@@ -24,10 +30,21 @@ var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var esl = require('modesl');
 
+if (mongo){
+	//mongo requires
+	var mongoose = require('mongoose');
+	//mongo Schemas
+	var Agent = require('./agent.js');
+	var CDR = require('./cdr.js');
+	var Agent_Status = require('./agent_status.js');
+	mongoose.connect('mongodb://localhost/acdstats');
+	var db = mongoose.connection;
+	db.on('error', console.error.bind(console, 'connection error:'));
+}
+
 //static content
 app.use(express.static(__dirname + '/public'));
 
-debug='false';
 
 //Sync
 currentQueue=0;
@@ -226,103 +243,189 @@ if(debug=='true'){
 
 
 
-function waitForAgents(){
-if(agentSync==queueArray.length && agentSync!=0){
-console.log("Agents are synced");
-console.log(queueArray);
-return;
-}else{
-setTimeout(waitForAgents,1000);
-}
+function saveAgents(){
+	for(var a=0;a<agentArray.length;a++){
+		aName = agentArray[a].name;
+		aQueue = agentArray[a].queue;
+		var agentdb = new Agent({
+			name:aName,
+			queue:aQueue
+		});
+		agentdb.save(function(err) {});
+	}
 }
 
 
 //Polls Freeswitch for the number and names of agents
 function getAgents(){
-//wait for getQueue to complete...asyncronous!
-if(queueArray.length<1){
-setTimeout(getAgents,1000);
-}
-for(var a=0;a<queueArray.length;a++){
-console.log(queueArray[a].name);
-var queueName=queueArray[a].name;
-var agentList;
-conn.api('callcenter_config queue list agents '+ queueName, function(res) {
-agentList = res.getBody().split("\n");
-for(var m=1;m<agentList.length-2;m++){
-agentLine = agentList[m];
-agentLineArray = agentLine.split("|");
-agent = new Agent();
-agent.queue = queueArray[currentQueue].name;
-agent.name = agentLineArray[0];
-agent.status = agentLineArray[5];
-agent.state = agentLineArray[6];
-agent.no_answer_count = agentLineArray[16];
-agent.calls_answered = agentLineArray[17];
-agent.talk_time = agentLineArray[18];
-agentArray.push(agent);
-if(debug =='true'){
-console.log("Agent:"+agent.name+"|State:"+agent.state+"|Status:"+agent.status+"|NoAnswerCount:"+agent.no_answer_count+"|Calls_Answered:"+agent.calls_answered+"|Talk_Time:"+agent.talk_time+"|Queue:"+agent.queue);
-}
-}
-currentQueue++;
-});
-}
+	//wait for getQueue to complete...asyncronous!
+	if(queueArray.length<1){
+		setTimeout(getAgents,1000);
+	}
+	for(var a=0;a<queueArray.length;a++){
+		console.log(queueArray[a].name);
+		var queueName=queueArray[a].name;
+		var agentList;
+		conn.api('callcenter_config queue list agents '+ queueName, function(res) {
+		agentList = res.getBody().split("\n");
+		for(var m=1;m<agentList.length-2;m++){
+			agentLine = agentList[m];
+			agentLineArray = agentLine.split("|");
+			agent = new Agent();
+			agent.queue = queueArray[currentQueue].name;
+			agent.name = agentLineArray[0];
+			agent.status = agentLineArray[5];
+			agent.state = agentLineArray[6];
+			agent.no_answer_count = agentLineArray[16];
+			agent.calls_answered = agentLineArray[17];
+			agent.talk_time = agentLineArray[18];
+			agentArray.push(agent);
+			if(debug =='true'){
+				console.log("Agent:"+agent.name+"|State:"+agent.state+"|Status:"+agent.status+"|NoAnswerCount:"+agent.no_answer_count+"|Calls_Answered:"+agent.calls_answered+"|Talk_Time:"+agent.talk_time+"|Queue:"+agent.queue);
+			}
+		}
+		currentQueue++;
+		});
+	}
 }
 
 
 function handleMemberQueueStart(event){
-var member = new Member();
-member.uuid = event['CC-Member-UUID'];
-member.name= event['CC-Member-CID-Name'];
-member.number=event['CC-Member-CID-Number'];
-member.call_start=event['Event-Date-Timestamp'];
-member.queue=event['CC-Queue'];
-member.state="Active";
-var uuidMatch ="";
-for(var m=0;m<memberArray.length;m++){
-if(memberArray[m].uuid == member.uuid){
-uuidMatch="matched";
-}
-}
-if(!uuidMatch){
-memberArray.unshift(member);
-}
+	var member = new Member();
+	member.uuid = event['CC-Member-UUID'];
+	member.name= event['CC-Member-CID-Name'];
+	member.number=event['CC-Member-CID-Number'];
+	member.call_start=event['Event-Date-Timestamp'];
+	member.queue=event['CC-Queue'];
+	member.state="Active";
+	var uuidMatch ="";
+	for(var m=0;m<memberArray.length;m++){
+		if(memberArray[m].uuid == member.uuid){
+		uuidMatch="matched";
+		}
+	}
+	if(!uuidMatch){
+		memberArray.unshift(member);
+	}
+	if(mongo){
+                var call = new CDR({
+                        uuid:member.uuid,
+			name:member.name,
+			number:member.number,
+                        queue:member.queue
+                });
+                call.save(function(err) {});
+
+	}
 }
 
 function handleMemberQueueUpdate(event){
-for(var m=0;m<memberArray.length;m++){
-if(memberArray[m].uuid == event['CC-Member-UUID']){
-if(event['CC-Cause'] == "Terminated" || event['CC-Cause'] == "Cancel"){
-memberArray[m].state ="Inactive";	
-}	
-if(event['CC-Action'] == "bridge-agent-start"){
-memberArray[m].call_join=event['CC-Member-Joined-Time'];
-memberArray[m].state="Bridged";
-memberArray[m].agent=event['CC-Agent'];
-}
-}
-}
+	for(var m=0;m<memberArray.length;m++){
+		if(memberArray[m].uuid == event['CC-Member-UUID']){
+			if(event['CC-Cause'] == "Terminated" || event['CC-Cause'] == "Cancel"){
+				memberArray[m].state ="Inactive";	
+				if(mongo){
+					CDR.findOne({uuid:memberArray[m].uuid},function(err,doc){
+						if(typeof event['CC-Member-Leaving-Time'] !== 'undefined'){
+							doc.member_leaving_time = event['CC-Member-Leaving-Time'];
+						}else{
+							doc.member_leaving_time = new Date();
+						}
+						if(typeof event['CC-Cause'] !== 'undefined'){
+							doc.call_termination_cause = event['CC-Cause'];
+							console.log(event['CC-Cause']);
+							if(event['CC-Cause'] == "Cancel"){
+								doc.call_cancel_reason = event['CC-Cancel-Reason'];
+							}
+						}
+						doc.save();
+					});
+				}
+			}	
+			if(event['CC-Action'] == "bridge-agent-start"){
+				memberArray[m].call_join=event['CC-Member-Joined-Time'];
+				memberArray[m].state="Bridged";
+				memberArray[m].agent=event['CC-Agent'];
+				if(mongo){
+					CDR.findOne({uuid:memberArray[m].uuid},function(err,doc){
+						if(typeof event['CC-Agent'] !== 'undefined'){
+							doc.agent = event['CC-Agent'];	
+						}
+						if(typeof event['CC-Agent-UUID'] !== 'undefined'){
+							doc.agent_uuid = event['CC-Agent-UUID'];	
+						}
+						if(typeof event['CC-Member-Joined-Time'] !== 'undefined'){
+							var utcSeconds= event['CC-Member-Joined-Time'];
+							var d = new Date(0);
+							d.setUTCSeconds(utcSeconds);
+							doc.member_joined_time = d;
+						}else{
+							doc.member_joined_time = new Date();
+						}
+						doc.agent = event['CC-Agent'];
+						doc.save();
+					});
+				}
+			}
+		}
+	}
 }
 
 function handleMemberQueueStop(event){
-for(var m=0;m<memberArray.length;m++){
-if(memberArray[m].uuid==event['CC-Member-UUID']){
-memberArray.splice(m,1);
-}
-}
+	for(var m=0;m<memberArray.length;m++){
+		if(memberArray[m].uuid==event['CC-Member-UUID']){
+			if(mongo){
+				CDR.findOne({uuid:memberArray[m].uuid},function(err,doc){
+					if(typeof event['CC-Agent-Called-Time'] !== 'undefined'){
+						var alSeconds= event['CC-Agent-Called-Time'];
+						var ald = new Date(0);
+						ald.setUTCSeconds(alSeconds);
+						doc.agent_called_time = ald;	
+					}
+					if(typeof event['CC-Agent-Answered-Time'] !== 'undefined'){
+						var aaSeconds= event['CC-Agent-Answered-Time'];
+						var aad = new Date(0);
+						aad.setUTCSeconds(aaSeconds);
+						doc.agent_answered_time = aad;
+					}
+					if(typeof event['CC-Member-Leaving-Time'] !== 'undefined'){
+						var utcSeconds= event['CC-Member-Leaving-Time'];
+						var d = new Date(0);
+						d.setUTCSeconds(utcSeconds);
+						doc.member_leaving_time = d;
+					}else{
+						doc.member_leaving_time = new Date();
+					}
+					if(typeof event['CC-Cause'] !== 'undefined'){
+						doc.call_termination_cause = event['CC-Cause'];
+						if(event['CC-Cause'] == "Cancel"){
+							doc.call_cancel_reason = event['CC-Cancel-Reason'];
+						}
+					}
+					doc.save();
+				});
+			}
+			memberArray.splice(m,1);
+		}
+	}
 }
 
 
 function handleAgentStatus(event){
-for(var a=0;a<agentArray.length;a++){
-if(agentArray[a].name==event['CC-Agent']){
-agentArray[a].status=event['CC-Agent-Status'];
-if(debug=='true'){
-console.log("Agent Status Updating:"+agentArray[a].name+" Status:"+agentArray[a].status);
-}
-}
-}
+	for(var a=0;a<agentArray.length;a++){
+		if(agentArray[a].name==event['CC-Agent']){
+			agentArray[a].status=event['CC-Agent-Status'];
+			if(debug=='true'){
+				console.log("Agent Status Updating:"+agentArray[a].name+" Status:"+agentArray[a].status);
+			}
+			if(mongo){
+				var agentStatus = new Agent_Status({
+				});
+				agentStatus.save(function(err) {});
+
+			}
+		}
+	}
 }
 
 function handleAgentState(event){
@@ -414,6 +517,10 @@ conn = new esl.Connection('127.0.0.1', 8021, 'ClueCon', function() {
 getQueues();
 getAgents();
 initClients();
+if(mongo){
+	//wait for everything to sync then update the database.
+	setTimeout(saveAgents,10000);
+}
 conn.events("plain", "all");
 conn.on('**', function(e) {
 name=e.getHeader('Event-Name');
